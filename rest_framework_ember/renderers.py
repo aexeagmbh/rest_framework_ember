@@ -1,6 +1,8 @@
 import copy
-from rest_framework import renderers
+import logging
+logger = logging.getLogger(__name__)
 
+from rest_framework import renderers
 from rest_framework_ember.utils import get_resource_name
 
 
@@ -21,16 +23,15 @@ class JSONRenderer(renderers.JSONRenderer):
 
         resource_name = get_resource_name(view)
 
-        if resource_name == False:
+        if resource_name is False:
             return super(JSONRenderer, self).render(
                 data, accepted_media_type, renderer_context)
 
         try:
-            data_copy = copy.copy(data)
-            content = data_copy.pop('results')
-            data = {resource_name : content, "meta" : data_copy}
+            content = data.pop('results')
+            data = {resource_name: content, "meta": data}
         except (TypeError, KeyError, AttributeError) as e:
-            data = {resource_name : data}
+            data = {resource_name: data}
         return super(JSONRenderer, self).render(
             data, accepted_media_type, renderer_context)
 
